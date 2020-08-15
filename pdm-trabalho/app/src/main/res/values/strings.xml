@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Pdm Trabalho</string>
+    <string name="title_activity_cadastro">cadastro</string>
+    <string name="title_activity_item_produto">ItemProduto</string>
+    <string name="title_activity_categoria_scene">CategoriaScene</string>
+    <string name="title_activity_produto_scene">ProdutoScene</string>
+</resources>
