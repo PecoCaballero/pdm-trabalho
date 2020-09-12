@@ -29,7 +29,8 @@ public class AdapterListaCategorias extends  RecyclerView.Adapter<AdapterListaCa
 
     @Override
     public void onBindViewHolder(GuardadorItemLista guardadorItemLista, int position){
-        guardadorItemLista.lblTitulo.setText( categorias.get(position).getTitle() );
+        System.out.println("onBindViewHolder: " + categorias.get(position).getTitulo());
+        guardadorItemLista.lblTitulo.setText( categorias.get(position).getTitulo() );
     }
 
     @Override

@@ -1,34 +1,58 @@
 package com.example.pdmtrabalho;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 
 import android.os.Bundle;
 import android.widget.LinearLayout;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class HomeScreen extends AppCompatActivity {
 
     private RecyclerView listaCategorias;
     private RecyclerView listaProdutosDestaque;
 
-    private ArrayList<Categoria> categorias = new ArrayList<Categoria>();
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+
+    private ArrayList<Categoria> categoriasRepo = new ArrayList<Categoria>();
     private AdapterListaCategorias adapterListaCategorias;
 
     private ArrayList<Produto> produtosDestaque = new ArrayList<Produto>();
     private AdapterListaProdutosDestaque adapterListaProdutosDestaque;
 
+    private DatabaseReference db = FirebaseDatabase.getInstance().getReference();
+    private FirebaseAuth usuarios = FirebaseAuth.getInstance();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        editor = sharedPreferences.edit();
 
         listaCategorias = findViewById(R.id.listaCategorias);
         listaProdutosDestaque = findViewById(R.id.listaProdutosDestaque);
@@ -36,7 +60,7 @@ public class HomeScreen extends AppCompatActivity {
         LinearLayoutManager lm = new LinearLayoutManager(getApplicationContext());
         GridLayoutManager gm = new GridLayoutManager(getApplicationContext(), 2);
 
-        adapterListaCategorias = new AdapterListaCategorias(categorias);
+        adapterListaCategorias = new AdapterListaCategorias(categoriasRepo);
         adapterListaProdutosDestaque = new AdapterListaProdutosDestaque(produtosDestaque);
 
         lm.setOrientation(LinearLayoutManager.HORIZONTAL);
@@ -51,7 +75,7 @@ public class HomeScreen extends AppCompatActivity {
                         new RecyclerItemClickListener.OnItemClickListener() {
                     @Override public void onItemClick(View view, int position) {
                         Intent categoriaScreen = new Intent(getApplicationContext(), CategoriaScene.class);
-                        categoriaScreen.putExtra("categoria", categorias.get(position));
+                        categoriaScreen.putExtra("categoria", categoriasRepo.get(position));
                         startActivity(categoriaScreen);
                     }
 
@@ -83,53 +107,97 @@ public class HomeScreen extends AppCompatActivity {
                 new DividerItemDecoration( this, LinearLayout.VERTICAL );
         listaProdutosDestaque.addItemDecoration(linhaVertical);
 
-        popularCategorias();
-        popularProdutosDestaque();
+        db.addValueEventListener(new EscutadorFirebase());
 
     }
 
-    private void popularCategorias(){
-        ArrayList<Produto> produtosCat = new ArrayList<Produto>();
-        produtosCat.add(new Produto("Barbie", null, "Este produto é bom", 50.34));
-        produtosCat.add(new Produto("Jogo de Tabuleiro", null, "Este produto é bom", 32));
-        produtosCat.add(new Produto("Carrinho", null, "Este produto é bom", 14.99));
-        produtosCat.add(new Produto("Nerf", null, "Este produto é bom", 160.55));
-        Categoria cat = new Categoria("Brinquedos", "", produtosCat);
-        ArrayList<Produto> produtosCat2 = new ArrayList<Produto>();
-        produtosCat2.add(new Produto("Pá", null, "Este produto é bom", 50.34));
-        produtosCat2.add(new Produto("Britadeira", null, "Este produto é bom", 599.99));
-        produtosCat2.add(new Produto("Conjunto de chaves", null, "Este produto é bom", 14.99));
-        produtosCat2.add(new Produto("Parafusadeira", null, "Este produto é bom", 360.55));
-        Categoria cat2 = new Categoria("Ferramentas", "", produtosCat2);
-        ArrayList<Produto> produtosCat3 = new ArrayList<Produto>();
-        produtosCat3.add(new Produto("Capinha de celular", null, "Este produto é bom", 50.34));
-        produtosCat3.add(new Produto("IPhone 6", null, "Este produto é bom", 599.99));
-        produtosCat3.add(new Produto("Carregador USB-C", null, "Este produto é bom", 14.99));
-        produtosCat3.add(new Produto("Google home mini", null, "Este produto é bom", 360.55));
-        Categoria cat3 = new Categoria("Eletrônicos", "", produtosCat3);
-        ArrayList<Produto> produtosCat4 = new ArrayList<Produto>();
-        produtosCat4.add(new Produto("Panela funda", null, "Este produto é bom", 50.34));
-        produtosCat4.add(new Produto("AirFryer", null, "Este produto é bom", 599.99));
-        produtosCat4.add(new Produto("Espatula de silicone", null, "Este produto é bom", 14.99));
-        produtosCat4.add(new Produto("Frigideira antiaderente", null, "Este produto é bom", 360.55));
-        Categoria cat4 = new Categoria("Cozinha", "", produtosCat4);
-        categorias.add(cat);
-        categorias.add(cat2);
-        categorias.add(cat3);
-        categorias.add(cat4);
-        adapterListaProdutosDestaque.notifyDataSetChanged();
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+
+        MenuInflater inflater = getMenuInflater();
+
+        inflater.inflate(R.menu.home_menu, menu);
+        return true;
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
 
-    private void popularProdutosDestaque(){
-        Produto prod = new Produto("Jogo de tabuleiro", "","Este produto é bom", 10);
-        Produto prod2 = new Produto("Pá", "", "Este produto é bom",10);
-        Produto prod3 = new Produto("Celular", "", "Este produto é bom",10);
-        Produto prod4 = new Produto("Panela", "", "Este produto é bom",10);
-        produtosDestaque.add(prod);
-        produtosDestaque.add(prod2);
-        produtosDestaque.add(prod3);
-        produtosDestaque.add(prod4);
-        adapterListaProdutosDestaque.notifyDataSetChanged();
+        System.out.println("Logout: " + item.getItemId() + " " + R.id.menLogout);
+        switch (item.getItemId()) {
+            case R.id.menLogout:
+                editor.putString("UID", "");
+                editor.commit();
+                usuarios.signOut();
+                Intent i1 = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(i1);
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
+
+    private class EscutadorFirebase implements ValueEventListener {
+        @Override
+        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+            if ( dataSnapshot.exists() ) {
+                for(Iterator<DataSnapshot> catObj = dataSnapshot.getChildren().iterator(); catObj.hasNext();){
+                    String titulo = "";
+                    String imagemUrl = "";
+                    ArrayList<Produto> produtos = new ArrayList<>();
+                    DataSnapshot catObjNext = catObj.next();
+                    for(Iterator<DataSnapshot> catDataIter = catObjNext.getChildren().iterator(); catDataIter.hasNext();){
+                        DataSnapshot catData = catDataIter.next();
+                        String key = catData.getKey();
+                        if(key.equals("titulo")){
+                            titulo = catData.getValue(String.class);
+                        } else if(key.equals("imagemUrl")){
+                            imagemUrl = catData.getValue(String.class);
+                        } else if (key.equals("produtos")){
+                            for(Iterator<DataSnapshot> prodArrDataIter = catData.getChildren().iterator(); prodArrDataIter.hasNext();){
+                                String prodTitulo = "";
+                                String prodDescricao = "";
+                                String prodImagemUrl = "";
+                                double prodPreco = 0;
+                                boolean prodDestaque = false;
+                                DataSnapshot prodArrDataIterNext = prodArrDataIter.next();
+                                for(Iterator<DataSnapshot> prodDataIter = prodArrDataIterNext.getChildren().iterator(); prodDataIter.hasNext();){
+                                    DataSnapshot prodData = prodDataIter.next();
+                                    String prodKey = prodData.getKey();
+                                    if(prodKey.equals("titulo")){
+                                        prodTitulo = prodData.getValue(String.class);
+                                    } else if(prodKey.equals("imagemUrl")){
+                                        prodImagemUrl = prodData.getValue(String.class);
+                                    } else if (prodKey.equals("descricao")) {
+                                        prodDescricao = prodData.getValue(String.class);
+                                    } else if (prodKey.equals("preco")){
+                                        prodPreco = prodData.getValue(Double.class);
+                                    } else if (prodKey.equals("destaque")){
+                                        prodDestaque = prodData.getValue(Boolean.class);
+                                    }
+                                }
+                                Produto prod = new Produto(prodTitulo, prodImagemUrl, prodDescricao, prodPreco);
+                                produtos.add(prod);
+                                if(prodDestaque) {
+                                    produtosDestaque.add(prod);
+                                }
+                            }
+                        }
+                    }
+                    categoriasRepo.add(new Categoria(titulo, imagemUrl, produtos));
+                }
+
+            }
+            Repositorio.getInstance().setCategorias(categoriasRepo);
+            categoriasRepo = Repositorio.getInstance().getCategorias();
+            adapterListaProdutosDestaque.notifyDataSetChanged();
+            adapterListaCategorias.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onCancelled(@NonNull DatabaseError databaseError) {
+        }
+    }
+
 }

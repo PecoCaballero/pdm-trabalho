@@ -5,13 +5,13 @@ import java.util.ArrayList;
 
 public class Categoria implements Serializable {
 
-    private String title;
-    private String imageUrl;
+    private String titulo;
+    private String imagemUrl;
     private ArrayList<Produto> produtos;
 
-    public Categoria(String title, String imageUrl, ArrayList<Produto> produtos) {
-        this.title = title;
-        this.imageUrl = imageUrl;
+    public Categoria(String titulo, String imagemUrl, ArrayList<Produto> produtos) {
+        this.titulo = titulo;
+        this.imagemUrl = imagemUrl;
         this.produtos = produtos;
     }
 
@@ -23,19 +23,19 @@ public class Categoria implements Serializable {
         this.produtos = produtos;
     }
 
-    public String getTitle() {
-        return title;
+    public String getTitulo() {
+        return titulo;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
     }
 
-    public String getImageUrl() {
-        return imageUrl;
+    public String getImagemUrl() {
+        return imagemUrl;
     }
 
-    public void setImageUrl(String imageUrl) {
-        this.imageUrl = imageUrl;
+    public void setImagemUrl(String imagemUrl) {
+        this.imagemUrl = imagemUrl;
     }
 }

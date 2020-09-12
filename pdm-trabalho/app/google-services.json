@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1074471602485",
+    "firebase_url": "https://mobile-store-70f4a.firebaseio.com",
+    "project_id": "mobile-store-70f4a",
+    "storage_bucket": "mobile-store-70f4a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1074471602485:android:4a25243e0b019217a4647c",
+        "android_client_info": {
+          "package_name": "com.example.pdmtrabalho"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1074471602485-4llcveckm969ujli90mtlrroi6im81np.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCFfx0bwNkXl_yuPkHcOp3S0RC1JwKtGM8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1074471602485-4llcveckm969ujli90mtlrroi6im81np.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
